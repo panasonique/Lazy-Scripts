@@ -7,7 +7,7 @@ import textwrap
 bl_info = {
     "name": "Lazy Scripts",
     "author": "treety & Gemini (Google AI)",
-    "version": (3, 4, 0),
+    "version": (3, 4, 1),
     "blender": (4, 0, 0),
     "category": "Interface",
 }
@@ -334,12 +334,18 @@ def register():
 
                 def draw_sub_header(self, context):
                     layout = self.layout
-                    label = self.base_label
-                    if self.linked_prop:
-                        var_item = context.scene.my_addon_vars.get(self.linked_prop)
+                    # Используем getattr для безопасного получения атрибутов
+                    label = getattr(self, "base_label", "Panel")
+                    prop_id = getattr(self, "linked_prop", None)
+                    
+                    if prop_id:
+                        var_item = context.scene.my_addon_vars.get(prop_id)
                         if var_item:
+                            # Формируем строку с числом
                             label = f"{label} ({var_item.value:.2f})"
+                            
                     layout.label(text=label)
+
 
                 sub_cls = type(sub_id, (bpy.types.Panel,), {
                     "bl_label": "", 
@@ -388,4 +394,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
+
 
