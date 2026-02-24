@@ -334,15 +334,18 @@ def register():
 
                 def draw_sub_header(self, context):
                     layout = self.layout
-                    # Используем getattr для безопасного получения атрибутов
                     label = getattr(self, "base_label", "Panel")
                     prop_id = getattr(self, "linked_prop", None)
                     
                     if prop_id:
+                        # Проверяем, есть ли уже такая переменная в сцене
                         var_item = context.scene.my_addon_vars.get(prop_id)
                         if var_item:
-                            # Формируем строку с числом
+                            # Если нашли — выводим значение
                             label = f"{label} ({var_item.value:.2f})"
+                        else:
+                            # Если переменная ещё не создана (в процессе инициализации)
+                            label = f"{label} (...)"
                             
                     layout.label(text=label)
 
@@ -394,6 +397,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
