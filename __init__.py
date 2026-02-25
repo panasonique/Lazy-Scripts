@@ -292,10 +292,24 @@ def register():
         folder_path = os.path.join(BASE_DIR, folder)
         safe_folder = re.sub(r'\W+', '_', folder)
         main_id = f"MY_PT_{safe_folder}"
+        # 1. Извлекаем prop_id из имени основной папки
+        main_prop_match = re.search(r'\{(.+?)\}', folder)
+        main_target_prop = main_prop_match.group(1) if main_prop_match else None
+        main_clean_label = clean_display_name(re.sub(r'\{.+?\}', '', folder)).strip()
+
+        # 2. Создаем класс главной панели
         main_cls = type(main_id, (bpy.types.Panel,), {
-            "bl_label": clean_display_name(folder), "bl_idname": main_id,
-            "bl_space_type": 'VIEW_3D', "bl_region_type": 'UI', "bl_category": "Lazy Scripts", "draw": lambda s, c: None
+            "bl_label": "", # Оставляем пустым, так как рисуем через header
+            "bl_idname": main_id,
+            "bl_space_type": 'VIEW_3D',
+            "bl_region_type": 'UI',
+            "bl_category": "Lazy Scripts",
+            "base_label": main_clean_label,
+            "linked_prop": main_target_prop,
+            "draw_header": draw_sub_header, # ТА ЖЕ МАГИЯ, ЧТО И ДЛЯ ПОДПАНЕЛЕЙ
+            "draw": lambda s, c: None
         })
+
         bpy.utils.register_class(main_cls); dynamic_classes.append(main_cls)
         
         content = []
@@ -397,6 +411,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
