@@ -36,7 +36,6 @@
 
 Каждый `.py` файл должен содержать словарь `info` в начале. Это конфигурация вашей кнопки или поля ввода.
 
-python
 info = {
     "name": "Super Tool",
     "type": "button",        # Типы: button, input_float, input_int, input_custom, text
@@ -50,7 +49,6 @@ info = {
 # Ваш код здесь...
 # Доступ к переменным: val = props.my_var
 # Вывод в статус-бар: report({'INFO'}, "Скрипт выполнен!")
-
 
 ---
 
