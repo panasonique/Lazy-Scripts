@@ -277,24 +277,24 @@ def on_load_post_handler(dummy1, dummy2=None):
 
 # --- РЕГИСТРАЦИЯ ---
 
-# ВЫНОСИМ ФУНКЦИЮ ИЗ ЦИКЛА (теперь она видна всем классам панелей)
+# --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТРИСОВКИ ЗАГОЛОВКА ---
 def draw_sub_header(self, context):
     layout = self.layout
-    # Берем данные из свойств самого класса
-    label = getattr(self, "base_label", "Panel")
+    # Берем очищенное имя, которое мы сохранили в классе
+    label = getattr(self, "base_label", "")
     prop_id = getattr(self, "linked_prop", None)
     
     if prop_id:
-        # Проверяем переменную в сцене (Пункт 2 контекста: {prop_id})
         var_item = context.scene.my_addon_vars.get(prop_id)
         if var_item:
-            # Форматируем вывод: Имя (Значение)
+            # Формат: Имя (1.00)
             label = f"{label} ({var_item.value:.2f})"
         else:
             label = f"{label} (...)"
             
     layout.label(text=label)
 
+# --- РЕГИСТРАЦИЯ С ИСПРАВЛЕНИЕМ ЦВЕТА/ДУБЛЕЙ ---
 def register():
     bpy.utils.register_class(MyAddonVariable)
     bpy.utils.register_class(MY_OT_RunExternalScript)
@@ -313,14 +313,13 @@ def register():
         safe_folder = re.sub(r'\W+', '_', folder)
         main_id = f"MY_PT_{safe_folder}"
         
-        # 1. Извлекаем prop_id из имени основной папки
         main_prop_match = re.search(r'\{(.+?)\}', folder)
         main_target_prop = main_prop_match.group(1) if main_prop_match else None
         main_clean_label = clean_display_name(re.sub(r'\{.+?\}', '', folder)).strip()
 
-        # 2. Создаем класс главной панели (ТЕПЕРЬ draw_sub_header ОПРЕДЕЛЕНА)
+        # ИСПРАВЛЕНИЕ: bl_label = "" убирает белый системный текст
         main_cls = type(main_id, (bpy.types.Panel,), {
-            "bl_label": main_clean_label, # Для поиска в списке
+            "bl_label": "", 
             "bl_idname": main_id,
             "bl_space_type": 'VIEW_3D',
             "bl_region_type": 'UI',
@@ -347,17 +346,15 @@ def register():
             if not item['is_dir']:
                 file_group = []
                 while i < len(content) and not content[i]['is_dir']:
-                    file_group.append(content[i]['path'])
-                    i += 1
+                    file_group.append(content[i]['path']); i += 1
+                
                 g_id = f"MY_PT_G_{safe_folder}_{group_idx}"
                 g_cls = type(g_id, (bpy.types.Panel,), {
                     "bl_label": "", "bl_idname": g_id, "bl_parent_id": main_id,
                     "bl_space_type": 'VIEW_3D', "bl_region_type": 'UI',
                     "bl_options": {'HIDE_HEADER'}, "file_paths": file_group, "draw": draw_dynamic_section
                 })
-                bpy.utils.register_class(g_cls)
-                dynamic_classes.append(g_cls)
-                group_idx += 1
+                bpy.utils.register_class(g_cls); dynamic_classes.append(g_cls); group_idx += 1
             else:
                 found_prop = re.search(r'\{(.+?)\}', item['name'])
                 target_prop = found_prop.group(1) if found_prop else None
@@ -366,10 +363,9 @@ def register():
                 safe_name = re.sub(r'\W+', '_', item['name']).strip('_')
                 sub_id = f"MY_PT_{safe_name}"
 
-                # УДАЛЕНО: Определение draw_sub_header отсюда убрано!
-
+                # ИСПРАВЛЕНИЕ: bl_label = "" также для подпанелей
                 sub_cls = type(sub_id, (bpy.types.Panel,), {
-                    "bl_label": clean_label, 
+                    "bl_label": "", 
                     "base_label": clean_label,
                     "linked_prop": target_prop,
                     "bl_idname": sub_id,
@@ -378,18 +374,14 @@ def register():
                     "bl_region_type": 'UI',
                     "bl_options": {'DEFAULT_CLOSED'},
                     "file_paths": [os.path.join(item['path'], f) for f in os.listdir(item['path']) if f.endswith('.py')],
-                    "draw_header": draw_sub_header, # Использует глобальную функцию
+                    "draw_header": draw_sub_header,
                     "draw": draw_dynamic_section
                 })
-                bpy.utils.register_class(sub_cls)
-                dynamic_classes.append(sub_cls)
-                i += 1
+                bpy.utils.register_class(sub_cls); dynamic_classes.append(sub_cls); i += 1
     
     bpy.utils.register_class(MY_PT_Settings)
     bpy.app.timers.register(sync_addon_properties, first_interval=0.1)
     register_shortcuts()
-
-# ... unregister остается без изменений
 
 
 def unregister():
@@ -415,6 +407,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
