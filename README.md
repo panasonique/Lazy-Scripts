@@ -38,18 +38,19 @@
 
 python
 info = {
-\"name\": \"Super Tool\",
-\"type\": \"button\",        # Типы: button, input_float, input_int, input_custom, text
-\"prop_id\": \"my_var\",     # ID для связи с переменной (опционально)
-\"default\": 1.0,          # Значение по умолчанию
-\"min\": 0.0, \"max\": 10.0, # Лимиты (обрабатываются автоматически)
-\"shortcut\": \"Ctrl Shift A\", 
-\"description\": \"Подсказка при наведении\"
+    "name": "Super Tool",
+    "type": "button",        # Типы: button, input_float, input_int, input_custom, text
+    "prop_id": "my_var",     # ID для связи с переменной (опционально)
+    "default": 1.0,          # Значение по умолчанию
+    "min": 0.0, "max": 10.0, # Лимиты (обрабатываются автоматически)
+    "shortcut": "Ctrl Shift A", 
+    "description": "Подсказка при наведении"
 }
 
 # Ваш код здесь...
 # Доступ к переменным: val = props.my_var
-# Вывод в статус-бар: report({'INFO'}, \"Скрипт выполнен!\")
+# Вывод в статус-бар: report({'INFO'}, "Скрипт выполнен!")
+
 
 ---
 
