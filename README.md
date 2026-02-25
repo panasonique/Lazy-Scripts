@@ -36,7 +36,8 @@
 
 Каждый `.py` файл должен содержать словарь `info` в начале. Это конфигурация вашей кнопки или поля ввода.
 
-python\ninfo = {
+python
+info = {
 \"name\": \"Super Tool\",
 \"type\": \"button\",        # Типы: button, input_float, input_int, input_custom, text
 \"prop_id\": \"my_var\",     # ID для связи с переменной (опционально)
